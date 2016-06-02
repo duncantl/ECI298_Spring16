@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Graphics</title><link rel="stylesheet" type="text/css" href="No"></link><link rel="stylesheet" type="text/css" href="entry"></link><link rel="stylesheet" type="text/css" href="for"></link><link rel="stylesheet" type="text/css" href="URI"></link><link rel="stylesheet" type="text/css" href="CSS/OmegaTech.css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></meta></head><body class="yui-skin-sam"><div class="article" title="Graphics"><div class="titlepage"><div><div><h2 class="title"><a id="idp140671191186032"></a>Graphics</h2></div></div><hr></hr></div><div class="section" title="Various Approaches"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140671191187056"></a>Various Approaches</h2></div></div></div><p>
+We have several different systems for creating plots,
+and at different levels.
+We have high-level functions for creating common plots,
+e.g., histograms, scatterplots, time series plots, etc.
+
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>graphics package (and others)</p></li><li class="listitem"><p>lattice package</p></li><li class="listitem"><p>ggplot2 package</p></li></ul></div><p>
+</p><p>
+Some visualization tasks are easiest using the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/graphics/index.html">graphics</a></i> package.
+It is reasonably straightforward conceptually to customize a plot to anything you want,
+but you'll be responsible for some of the low-level calculations (e.g., 
+placing the legend, scaling values to a common scale,  ensuring axes/scales are the same across plots.)
+</p><p>
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/lattice/index.html">lattice</a></i> is quite easy to use for many things and it takes care of several
+of the things you might have to do yourself in the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/graphics/index.html">graphics</a></i> package plots,
+e.g, a legend, consistent axes/scales. You have to learn just a few concepts and commands.
+It uses the formula language that is also used in almost all of the statistical modeling
+functions. This commonality is a win.
+You can customize plots, but it is slightly less obvious how as we interact with 
+a) panel functions, and b) the grid graphics system.
+</p><p>
+Many people take the time to learn <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a></i> and is probably a good idea if you are
+using <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> as your primary tool for visualizing data.
+It produces all of the common plots, and provides a computational framework for describing what is to be plotted
+using Wilkinson's Grammar of Graphics.
+The learning curve for <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a></i> is slightly higher than the other two, but not much.
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a></i> requires data frames, and not everything naturally fits in a data frame,
+e.g. two samples with different numbers of observations.
+</p><p>
+The lines, points, text are rendered using one of two graphics systems
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>traditional graphics engine</p></li><li class="listitem"><p>grid - used by lattice and ggplot2</p></li></ul></div><p>
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/grid/index.html">grid</a></i> is much more sophisticated, flexible and powerful, but there is a learning curve
+and a reasonable amount to remember.
+The traditional  graphics gets you a long way. You don't need to learn grid to use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a></i> or
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/lattice/index.html">lattice</a></i>.
+</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140671191198704"></a></h2></div></div></div><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140671191199216"><div><pre class="rcode" title="R code">
+d = read.csv("gst_file.csv", stringsAsFactors = FALSE)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<div xmlns="" class="codeToggle"><div class="unhidden" id="idp140671191199664"><div><pre class="rcode" title="R code">
+plot(-1* d$LONGITUDE, d$LATITUDE)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<div xmlns="" class="codeToggle"><div class="unhidden" id="idp140671191200048"><div><pre class="rcode" title="R code">
+plot(-1* d$LONGITUDE, d$LATITUDE, pch = ".")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+
+Add proper labels for the horizontal and vertical axes.
+<div xmlns="" class="codeToggle"><div class="unhidden" id="idp140671191200496"><div><pre class="rcode" title="R code">
+plot(-1* d$LONGITUDE, d$LATITUDE, pch = ".", xlab = "Longitude", ylab = "Latitude")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<div xmlns="" class="codeToggle"><div class="unhidden" id="idp140671191200880"><div><pre class="rcode" title="R code">
+map('county', xlim = c(-125, -113), ylim = c(30, 44))
+points(-1* d$LONGITUDE, d$LATITUDE, pch = ".", col = "red")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div></div><div class="section" title="Lattice"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140671191201520"></a>Lattice</h2></div></div></div><p>
+The basic idea is that we have a data frame containing observations with several variables.
+We can use it with one or two variables for univariate or bivariate plots.
+But it is more interesting when we 
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>group observations within a single plot</p></li><li class="listitem"><p>create multiple panels/plots for different subsets of the original data</p></li><li class="listitem"><p>group observations within multiple panels/plots for different subsets of the original data</p></li></ol></div><p>
+</p><p>
+One benefit of lattice is that it uses R's formula notation that is used in almost all the modeling functions in R.
+The basic format in lattice is
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140671191205264"><div><pre class="rcode" title="R code">
+plotFunc( y ~ x | panelGroupVariable, data)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p></div></div></body></html>
