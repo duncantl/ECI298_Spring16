@@ -1,0 +1,944 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Web Scraping</title><link rel="stylesheet" type="text/css" href="No"></link><link rel="stylesheet" type="text/css" href="entry"></link><link rel="stylesheet" type="text/css" href="for"></link><link rel="stylesheet" type="text/css" href="URI"></link><link rel="stylesheet" type="text/css" href="CSS/OmegaTech.css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></meta></head><body class="yui-skin-sam"><div class="article" title="Web Scraping"><div class="titlepage"><div><div><h2 class="title"><a id="idp140301430353600"></a>Web Scraping</h2></div><div><div class="author"><h3 class="author"><span class="firstname">Duncan</span> <span class="surname">Temple Lang</span></h3><div class="affiliation">Director, Data Science Initiative &amp; Prof. Dept. of Statistics</div></div></div></div><hr></hr></div><div class="section" title="General Considerations"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301407083264"></a>General Considerations</h2></div></div></div><p>
+Before scraping, see if there are more convenient ways to get the data,
+e.g. 
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>CSV files,</p></li><li class="listitem"><p>bulk-download of all the data,</p></li><li class="listitem"><p>a database,</p></li><li class="listitem"><p>a Web API (REST),</p></li><li class="listitem"><p>a (R) package that already provides access to the data,</p></li><li class="listitem"><p>email them and ask if they will make the data available.</p></li></ul></div><p>
+Also, check you are entitled to access the data in this way according the Terms of Service of the Web site.
+</p><p>
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Don't make lots of requests to their servers in rapid succession. You may get your (and other's) IP address blocked.</p></li><li class="listitem"><p>Perfect your code before launching many requests</p></li><li class="listitem"><p>Cache the page that you get in case you need to revisit it</p></li></ul></div><p>
+</p><p>
+There are now several packages that make some of this easier or
+provide slightly different interfaces, features, etc.
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>rvest</p></li><li class="listitem"><p>httr</p></li><li class="listitem"><p>scrapeR</p></li><li class="listitem"><p>curl</p></li><li class="listitem"><p>XML</p></li><li class="listitem"><p>RCurl</p></li></ul></div><p>
+And there are related packages for dealing with other formats we encounter on the Web (and elsewhere)
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>rjson, jsonlite, RJSONIO</p></li></ul></div><p>
+and several others, e.g., <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/RHTMLForms/index.html">RHTMLForms</a></i>
+</p><p>
+There are two steps to getting data from the Web
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>requesting and receiving the page we want</p></li><li class="listitem"><p>extracting the data from that page we now have locally</p></li></ol></div><p>
+In many cases, we can do these two steps in one:
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>simple HTTP requests, but not HTTPS</p></li><li class="listitem"><p>page is HTML or XML</p></li></ol></div><p>
+In these cases, we can retrieve and parse the HTML/XML document in one step
+with <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">htmlParse()</i> or <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">xmlParse()</i>.
+</p><p>
+In other cases, we can make the request to the Web server with, e.g., <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/RCurl/index.html">RCurl</a></i> or <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/curl/index.html">curl</a></i>
+and then parse the resulting document.
+This gives us much more control over how the request is made (e.g. cookies, login and passwords, submitting
+complex forms where we upload data).
+</p></div><div class="section" title="Scraping DWR Data"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430374160"></a>Scraping DWR Data</h2></div></div></div><p>
+Brad mentioned 4 different Web pages that have data that may be useful to some of you.
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>CDEC Monthly Full Natural Flow data in Merced River: <a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC" target="_top">http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC</a></p></li><li class="listitem"><p>CDEC Shasta Dam Storage Data: <a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/queryF?SHA" target="_top">http://cdec.water.ca.gov/cgi-progs/queryF?SHA</a></p></li><li class="listitem"><p>CDEC Monthly Flow Summaries: <a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/stages/FNFSUM" target="_top">http://cdec.water.ca.gov/cgi-progs/stages/FNFSUM</a></p></li><li class="listitem"><p>CNRFC Monthly Streamflow Volumes at Different Exceedance Probabilities (table data): <a class="ulink" href="http://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&amp;prodID=6" target="_top">http://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&amp;prodID=6</a></p></li></ol></div><p>
+We'll look at these. Fortunately, they are reasonably similar, very slightly non-standard and annoying and allow
+us to use our skills to manipulate data into the format we want.
+And we'll even access "data" that is lurking in one of these documents that is not visible.
+</p><p>
+All of the URLs are simple HTTP, not HTTPS. And each returns an HTML document. 
+So we can make the request and process the document in one go. 
+Even better, we have a function named <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> that attempts to make
+sense of tables in an HTML page. This function is in the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/XML/index.html">XML</a></i> package, so we load it.
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430381520"><div><pre class="rcode" title="R code">
+library(XML)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+If that fails, we need to install the package
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430381904"><div><pre class="rcode" title="R code">
+install.packages("XML")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+and then we still need to load it
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430382288"><div><pre class="rcode" title="R code">
+library(XML)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="http://docbook.sourceforge.net/release/xsl/current/images/note.svg"></img></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>
+If the call to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">install.packages()</i> didn't work, you may have to install the libxml2 developer code for
+your machine. This is separate from R.
+</p></td></tr></table></div></div><div class="section" title="Monthly Data"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430384064"></a>Monthly Data</h2></div></div></div><p>
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430384960"><div><pre class="rcode" title="R code">
+u = "http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC"
+tt = readHTMLTable(u)
+class(tt)
+length(tt)
+str(tt)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+There are some weird looking characters in the output, e.g.,
+</p><pre class="programlisting">
+  ..$ Â           : Factor w/ 2 levels "","Â": 2 1 1 1 1 1 1 1 1 1 ...
+</pre><p>
+Those A's with hats on them. The character encoding is wrong.
+This is a slightly messy topic and typically the software gets it correct.
+However, there are lot of moving parts here - a Web server, a client (R), encoding information
+in the file or in the Web server's response, ....
+So we'll just take over here and tell are that the character encoding for the document
+is UTF8. We'll also ensure that columns that are deemed to be strings are left as character
+vectors and not converted to factors:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430386960"><div><pre class="rcode" title="R code">
+tt = readHTMLTable(u, encoding = "UTF8", stringsAsFactors = FALSE)
+<pre class="routput">
+tt[[1]]
+      Date  MON FLO&amp;nbsp   MON FNF&amp;nbsp 
+1                     AF             AF 
+2  07/2014         64830 r         9975 
+3  08/2014         52840 r         5107 
+4  09/2014         34640 r         1723 
+5  10/2014         28780              0 
+6  11/2014         15112           3011 
+7  12/2014         15225          12645 
+8  01/2015         14890 e         6543 
+9  02/2015          2116          24628 
+10 03/2015         12817          19548 
+11 04/2015         14321          29879 
+12 05/2015         14240          42386 
+13 06/2015         15346          20700 
+14 07/2015         26732          10891 
+15 08/2015         13404           3422 
+16 09/2015          7591           1446 
+17 10/2015         18262            731 
+18 11/2015         14995          13344 
+19 12/2015         15612          38100 
+20 01/2016         15493          67684 
+21 02/2016         14202          58817 
+22 03/2016         14743         170074 
+23 04/2016         28352         172816 
+24 05/2016            --             -- 
+25 06/2016            --             -- 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+This looks reasonable, but there are problems:
+</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>the column names are approximately correct, but the first row of data
+ contains the sub-titles for two of the columns;</p></li><li class="listitem"><p>some of names of the columns have a &amp;nbsp after them;</p></li><li class="listitem"><p>there are r and e characters after some of the FLO values;</p></li><li class="listitem"><p>We don't have values for May and June and these are left as --</p></li></ul></div><p>
+So our job is to clean these up.
+</p><p>
+Let's look at the structure again:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430391040"><div><pre class="rcode" title="R code">
+dim(tt[[1]])
+<pre class="routput">
+[1] 25  6
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+There are 6 columns, not 3!
+Let's look at their names:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430391872"><div><pre class="rcode" title="R code">
+names(tt[[1]])
+<pre class="routput">
+[1] "Date"         ""             "MON FLO&amp;nbsp" ""             "MON FNF&amp;nbsp" ""            
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Every second column is "odd".
+If we look at the HTML,  we see these are used to display information.
+The 4th contains the r and e footnote markers. This makes removing these easier
+than if they were in the values themselves, i.e. <code class="literal">"64830 r"</code>.
+So let's just discard those columns and also work with the table directly rather than a list containing one table!:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430393616"><div><pre class="rcode" title="R code">
+tt = tt[[1]][, -c(2, 4, 6) ]  
+head(tt)
+<pre class="routput">
+     Date MON FLO&amp;nbsp MON FNF&amp;nbsp
+1                   AF           AF
+2 07/2014        64830         9975
+3 08/2014        52840         5107
+4 09/2014        34640         1723
+5 10/2014        28780            0
+6 11/2014        15112         3011
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+Now let's discard the first row:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430395296"><div><pre class="rcode" title="R code">
+tt = tt[-1, ]
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We could have done these two steps together as
+<code xmlns="" class="Sexpression">tt = tt[[1]][ -1, - c(2, 4, 6) ]</code>
+but this isn't important.
+</p><p>
+Because of that annoying first row containing the sub-titles of the columns,
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> wasn't able to interpret the second two columns as numbers.
+Ordinarily it would have done this for us, but these <code class="literal">"AF"</code> strings and also the
+non-universally recognized <code class="literal">--</code> as missing meant it left these columns as character vectors.
+No problems - we'll convert them:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430398272"><div><pre class="rcode" title="R code">
+tt[ , 2:3] = lapply( tt[, 2:3], as.integer)
+<pre class="rwarning">
+Warning messages:
+1: In lapply(tt[, 2:3], as.integer) : NAs introduced by coercion
+2: In lapply(tt[, 2:3], as.integer) : NAs introduced by coercion
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+The warning messages are expected since we have 2 <b xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="library/base/html/NA.html">NA</a></b>s in each column.
+</p><p>
+Again, let's look at <b xmlns="" class="S" title="">tt</b>:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430400288"><div><pre class="rcode" title="R code">
+head(tt)
+<pre class="routput">
+     Date MON FLO&amp;nbsp MON FNF&amp;nbsp
+2 07/2014        64830         9975
+3 08/2014        52840         5107
+4 09/2014        34640         1723
+5 10/2014        28780            0
+6 11/2014        15112         3011
+7 12/2014        15225        12645
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Let's check the class of the columns:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430401584"><div><pre class="rcode" title="R code">
+sapply(tt, class)
+<pre class="routput">
+        Date MON FLO&amp;nbsp MON FNF&amp;nbsp 
+ "character"    "integer"    "integer" 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We're getting close. 
+Let's fix the names
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430402544"><div><pre class="rcode" title="R code">
+names(tt)[2:3] = c("MON FLO", "MON FNF")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+or we can use a regular expression to remove the &amp;nbsp part of any name:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430403040"><div><pre class="rcode" title="R code">
+names(tt) = gsub("&amp;nbsp", "", names(tt))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Again, check the result:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430403776"><div><pre class="rcode" title="R code">
+names(tt)
+<pre class="routput">
+[1] "Date"    "MON FLO" "MON FNF"
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+The one last step is to convert the first column to dates.
+We can use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">as.Date()</i>. However, these are in the form month/year
+and that is not an actual day/date. So let's add a prefix of 1/ to each to get,
+e.g., 1/07/2014 and then use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">as.Date()</i>:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430405936"><div><pre class="rcode" title="R code">
+tmp = as.Date(sprintf("1/%s", tt$Date))
+head(tmp)
+<pre class="routput">
+[1] "0001-07-20" "0001-08-20" "0001-09-20" "0001-10-20" "0001-11-20" "0001-12-20"
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+That's not what we want. <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">as.Date()</i> thinks the 1/ prefix is the year 0001!
+Good thing we didn't write the result back into the data frame in the Date/first column. 
+All our values would have been overwritten. But the originals are still in <code xmlns="" class="Sexpression">tt$Date</code>:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430407744"><div><pre class="rcode" title="R code">
+tmp = as.Date(sprintf("1/%s", tt$Date), "%d/%m/%Y")
+head(tmp)
+<pre class="routput">
+[1] "2014-07-01" "2014-08-01" "2014-09-01" "2014-10-01" "2014-11-01" "2014-12-01"
+</pre>
+range(tmp)
+<pre class="routput">
+[1] "2014-07-01" "2016-06-01"
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+This all looks good, so let's add it to the data frame:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430409120"><div><pre class="rcode" title="R code">
+tt$Date = tmp
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+This is a little bit of work. The primary problem was the column headers being spread across two rows.
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> isn't very sophisticated because table headers are some varied and free form
+that it is impossible to get right.
+Often, it just gets the structure right.  If not, there are ways to use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> but just
+do some "repairs" on the table.
+However, we can just put the sequence of steps into a function and then never think about this again.
+</p><pre xmlns="" class="rfunction"><code class="r">
+getMonthly = 
+function(u = "http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC")
+{
+    tt = readHTMLTable(u, encoding = "UTF8", stringsAsFactors = FALSE)
+    tt = tt[[1]][ -1 , -c(2, 4, 6) ]  
+    tt[ , 2:3] = lapply( tt[, 2:3], as.integer)
+    names(tt) = gsub("&amp;nbsp", "", names(tt))
+    tt$Date = as.Date(sprintf("1/%s", tt$Date), "%d/%m/%Y")
+    tt
+}
+</code></pre>
+<p><br xmlns="">
+Then we can call this with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430411600"><div><pre class="rcode" title="R code">
+mrc = getMonthly()
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p></div><div class="section" title="Getting Data For a Different Time Period"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430412800"></a>Getting Data For a Different Time Period</h2></div></div></div><p>
+On the page we extracted the data from, there is an inconspicuous link on the text <code class="literal">Earlier</code>.
+If we follow this, our browser brings us to 
+<a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC&amp;d=01-Jun-2014+11:40&amp;span=2years" target="_top">http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC&amp;d=01-Jun-2014+11:40&amp;span=2years</a>.
+The ? separates the fixed URL and the dynamic terms  that customize the request to be for that station ID (MRC)
+and two additional parameters (like function arguments) d and span.
+We can make this request ourselves for a different starting period and number of years.
+We can paste our inputs into a string giving the URL or we can use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getForm()</i> in the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/RCurl/index.html">RCurl</a></i>
+package.  Both are fine. In this case, it is possibly easier to create the string ourselves:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430415984"><div><pre class="rcode" title="R code">
+u = "http://cdec.water.ca.gov/cgi-progs/queryMonthly"
+numYears = 3
+start = as.Date("2010-1-1")
+q = sprintf("%s?%s&amp;d=%s+00:00&amp;span=%dyears", u, "MRC", start, numYears)
+txt = htmlParse(q)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We can now process this document as we did before to extract the content from the table.
+We can basically use our <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getMonthly()</i> function above by  handing it the 
+new URL we created, i.e.,
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430417504"><div><pre class="rcode" title="R code">
+o = getMonthly(q)
+<pre class="routput">
+        Date MON FLO MON FNF
+2 2007-01-01   19170   16050
+3 2007-02-01   16880   37029
+4 2007-03-01   63960   68726
+5 2007-04-01   74420   93563
+6 2007-05-01  113100  103195
+7 2007-06-01  116400   28923
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p></div><div class="section" title="Shasta Dam Data"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430418736"></a>Shasta Dam Data</h2></div></div></div><p>
+Next, let's look at the URL
+<a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/queryF?SHA" target="_top">http://cdec.water.ca.gov/cgi-progs/queryF?SHA</a>.
+This is similar  (colors, fonts, etc.) but there are 5 columns of data.
+We can use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> again directly and manipulate the
+rows and columns. The steps are quite similar.
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430420688"><div><pre class="rcode" title="R code">
+u = "http://cdec.water.ca.gov/cgi-progs/queryF?SHA"
+tt = readHTMLTable(u, which = 1, encoding = "UTF8", stringsAsFactors = FALSE)
+tt = tt[-1,]
+names(tt) = gsub("&amp;nbsp", "", names(tt))
+tt = tt[ names(tt) != "" ]
+tt[, -1 ] = mapply(as, tt[, -1], c("numeric", "integer", "integer", "integer"))
+tmp = strptime(tt[,1], "%m/%d/%Y %H:%M")
+tt[, 1] = tmp
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Again, we can put this into a function so we don't have to repeat the code each time we retrieve the data.
+</p><p>
+Alternatively, we might make our <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getMonthly()</i> more flexible and capable of reading
+tables more generally, at least from this site.
+</p></div><div class="section" title="Monthly Flow Summaries"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430422480"></a>Monthly Flow Summaries</h2></div></div></div><p>
+This is a regular table. 
+The data are formatted with commas separating the digits for readability. <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">as.integer()</i> can't handle this.
+However, the <i xmlns="" class="rarg">colClasses</i> in <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> can deal with these if we specify these columns
+are <i xmlns=""><a href="Help/FormattedInteger-class.html">FormattedInteger</a></i>. (We can use this outside of <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> with <code xmlns="" class="Sexpression">as(vec, "FormattedInteger")</code>, but it would be nice to deal with all of the columns in the single
+call to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i>.)
+We still have the issue with the column names being in the second row
+and <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> can't deal with this.
+However, we can skip the first row of the content which is the column names.
+Then we can handle all
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430427008"><div><pre class="rcode" title="R code">
+u = "http://cdec.water.ca.gov/cgi-progs/stages/FNFSUM"
+tt = readHTMLTable(u, encoding = "UTF8", stringsAsFactors = FALSE, which = 1, skip.rows = 1, header = TRUE,
+                   colClasses = c("character", rep("FormattedInteger", 14)))
+head(tt)
+<pre class="routput">
+                       V1    V2    V3      V4      V5     V6      V7     V8 V9 V10 V11 V12 V13    V14     V15
+1 KLAMATH R COPCO-ORLEANS 33392 52041  632423 1089323 756087 1419407 708768 NA  NA  NA  NA  NA 708768 4691441
+2   SALMON R AT SOMES BAR  7551 14590  161901  335881 215068  427061 226000 NA  NA  NA  NA  NA 226000 1388052
+3   TRINITY R AT LEWISTON  8304 10510   55709  224984 181930  446763 259044 NA  NA  NA  NA  NA 259044 1187244
+4         EEL R AT SCOTIA  2761 10259 1097073 2206481 597955 2188849 272400 NA  NA  NA  NA  NA 272400 6375778
+5 RUSSIAN R AT HEALDSBURG     0   740   84975  299163  63801  364563  35413 NA  NA  NA  NA  NA  35413  848655
+6     NAPA R NR ST HELENA     0     0    1682   16393   2850   29159   2398 NA  NA  NA  NA  NA   2398   52482
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+This looks very close to what we want. We can check the dimension of the table and the classes of the columns
+to verify the results:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430428960"><div><pre class="rcode" title="R code">
+dim(tt)
+<pre class="routput">
+[1] 36 15
+</pre>
+table(sapply(tt, class))
+<pre class="routput">
+character   integer 
+        1        14 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We need the names for the columns. These may change across months, so we have to be careful to get them.
+We'd still like to use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i>. 
+One way to approach this is for us to explicitly parse the entire <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="progLang">HTML</b> document, and then 
+pass <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> the table.  We will also extract the elements from the second row
+of the table and use these as the names. First, we parse the document, get the only/relevant <code xmlns="" class="xmlTag">&lt;table&gt;</code> node
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430432400"><div><pre class="rcode" title="R code">
+doc = htmlParse(u, encoding = "UTF8")
+tblNode = getNodeSet(doc, "//table")[[1]]
+tt = readHTMLTable(tblNode, encoding = "UTF8", stringsAsFactors = FALSE, which = 1, skip.rows = 1, header = TRUE,
+                   colClasses = c("character", rep("FormattedInteger", 14)))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+The only changes are the call to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">htmlParse()</i> and <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getNodeSet()</i> and passing the table node
+to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i>.
+</p><p>
+Let's look at the second row:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430434608"><div><pre class="rcode" title="R code">
+tblNode[[2]]
+<pre xmlns="http://www.w3.org/1999/xhtml" class="programlisting">
+&lt;tr&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Stream &lt;/b&gt;&lt;/td&gt;
+&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Oct&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Nov&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Dec&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Jan&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Feb&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Mar&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Apr&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;May&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Jun&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Jul&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Aug&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;Sep&lt;/b&gt;&lt;/td&gt;&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;&lt;font color="000080"&gt;AJRO &lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
+&lt;td bgcolor="e0e0e0"&gt;&lt;b&gt;&lt;font color="000080"&gt;WYRO &lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
+&lt;/tr&gt; 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We can see the  column names: Stream, Oct, Nov, ..., WYRO.
+We have several ways to extract these:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430436560"><div><pre class="rcode" title="R code">
+xmlSApply(tblNode[[2]], xmlValue)
+<pre class="routput">
+       td      text        td        td        td        td        td        td        td        td        td        td        td        td        td      text        td      text 
+"Stream "      "\n"     "Oct"     "Nov"     "Dec"     "Jan"     "Feb"     "Mar"     "Apr"     "May"     "Jun"     "Jul"     "Aug"     "Sep"   "AJRO "      "\n"   "WYRO "      "\n" 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+That leaves a few text nodes that are not <code xmlns="" class="xmlTag">&lt;td&gt;</code> nodes. These text nodes are just they way the <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="progLang">HTML</b>
+was written, not part of the table.
+So
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430438336"><div><pre class="rcode" title="R code">
+xpathSApply(tblNode, "./tr[2]/td", xmlValue)
+<pre class="routput">
+ [1] "Stream " "Oct"     "Nov"     "Dec"     "Jan"     "Feb"     "Mar"     "Apr"     "May"     "Jun"     "Jul"     "Aug"     "Sep"     "AJRO "   "WYRO "  
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+These are the terms we wanted and we can set them as the names of the table:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430439264"><div><pre class="rcode" title="R code">
+names(tt) = xpathSApply(tblNode, "./tr[2]/td", xmlValue)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We've used <b xmlns="" class="proglang">XPath</b> and some <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> functions to work directly with the nodes in the <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="progLang">HTML</b> tree ourselves. 
+This is somewhat new, but not very difficult from a 
+</p></div><div class="section" title="NOAA's Exceedance Probabilities"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430440944"></a>NOAA's Exceedance Probabilities</h2></div></div></div><p>
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430441840"><div><pre class="rcode" title="R code">
+u = "http://www.cnrfc.noaa.gov/ensembleProduct.php?id=EXQC1&amp;prodID=6"
+tt = readHTMLTable(u, encoding = "UTF8")
+length(tt)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+There are 14 tables in this page. Which one do we want.
+We can look at each of them in <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> and identify the one we want.
+It turns out is the 8th one.
+We can specify this with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430442864"><div><pre class="rcode" title="R code">
+tt = readHTMLTable(u, encoding = "UTF8", which = 8)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Unfortunately, we still have the issue with the first row of the data frame containing the column names
+and also, the last row is a note in the table.
+So we want to use our previous approach of finding the table node and passing it to 
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i>.
+In this case, howwever, we are going to remove the note and also the very first row which
+provides the header <code class="literal">"Monthly Streamflow Volume (1000s of Acre-Feet)"</code>.
+By removing this first row, <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> will get the column names correctly.
+</p><p>
+We can be more specific and robust
+(in case the page layout changes) by finding the table 
+whose first row contains or starts with the text 
+<code class="literal">"Monthly Streamflow Volume"</code>.
+We can do this with an <b xmlns="" class="proglang">XPath</b> query.
+Again, we'll parse the entire <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="progLang">HTML</b> document ourselves and extract
+this table and pass it to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> as a node:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430446704"><div><pre class="rcode" title="R code">
+doc = htmlParse(u, encoding = "UTF8")
+tblNode = getNodeSet(doc, "//table[ contains(tr[1], 'Monthly Streamflow Volume')]")[[ 1 ]] # the only table in the result
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We can remove the first <code xmlns="" class="xmlTag">&lt;tr&gt;</code> node with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430448032"><div><pre class="rcode" title="R code">
+removeNodes(tblNode[[1]])
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We can verify that this leaves the first row as the one with the Prob, Jun ...  that we want:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430448512"><div><pre class="rcode" title="R code">
+tblNode[[1]]
+<pre class="routput">
+&lt;tr&gt;
+  &lt;td width="5%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt;Prob&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Jun&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Jul&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Aug&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Sep&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Oct&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Nov&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Dec&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Jan&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Feb&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Mar&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; Apr&lt;/b&gt;
+  &lt;/td&gt;
+  &lt;td width="7%" bgcolor="#666666" align="center" class="blue-background"&gt;
+    &lt;b&gt; May&lt;/b&gt;
+  &lt;/td&gt;
+&lt;/tr&gt;
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We can use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">xmlSize()</i> to find the last <code xmlns="" class="xmlTag">&lt;tr&gt;</code> node in the table:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430450688"><div><pre class="rcode" title="R code">
+tblNode[[ xmlSize(tblNode) ]]
+<pre class="routput">
+&lt;tr&gt;
+  &lt;td colspan="13" align="left" bgcolor="#FFFFFF" class="normalText"&gt;Note: MP/Avg is the "Most Probable Monthly Value (50%)" divided by the "Monthly Avg" (displayed as a %)&lt;/td&gt;
+&lt;/tr&gt; 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+That's the one we want, so we remove it with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430452000"><div><pre class="rcode" title="R code">
+removeNodes( tblNode[[ xmlSize(tblNode) ]] )
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+Now we can pass the modified node to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i>:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430453152"><div><pre class="rcode" title="R code">
+tt = readHTMLTable(tblNode, colClasses = c("character", rep("numeric", 12)))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+How, in regular <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b>, do we remove the row in the data frame consisting of all the <b xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="library/base/html/NA.html">NA</a></b> values ?
+Will it always be row 6? 
+
+</p></div><div class="section" title="Getting the Sensor Identifier"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430454880"></a>Getting the Sensor Identifier</h2></div></div></div>
+What if we wanted to retrieve the sensor identifiers with the data sources for a given site.
+These are in the column headers but not visible.
+They are part of the hyperlink for the <code class="literal">MON FLO</code>
+and <code class="literal">MON FNF</code> columns.
+In the <b xmlns="" xmlns:xd="http://www.xsldoc.org" class="progLang">HTML</b>, we have
+<pre class="programlisting">
+&lt;td align="right" bgcolor="e0e0e0"&gt;
+  &lt;font color="black"&gt;
+   &lt;i&gt;
+    &lt;a href="/jspplot/jspPlotServlet.jsp?sensor_no=5317&amp;amp;end=01/01/2010+00:00&amp;amp;geom=small&amp;amp;interval=720&amp;amp;cookies=cdec01"&gt;MON FLO&lt;/a&gt;
+    &lt;/i&gt;
+  &lt;/font&gt;
+&lt;/td&gt;
+&lt;td bgcolor="e0e0e0"&gt;  &lt;/td&gt;
+&lt;td align="right" bgcolor="e0e0e0"&gt;
+  &lt;font color="black"&gt;
+   &lt;i&gt;
+     &lt;a
+	 href="/jspplot/jspPlotServlet.jsp?sensor_no=5316&amp;amp;end=01/01/2010+00:00&amp;amp;geom=small&amp;amp;interval=720&amp;amp;cookies=cdec01"&gt;MON FNF&lt;/a&gt;
+   &lt;/i&gt;
+  &lt;/font&gt;
+&lt;/td&gt;
+</pre>
+We can use <b xmlns="" class="proglang">XPath</b> to retrieve these nodes
+and then extract the sensor_no value within them.
+<div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430457888"><div><pre class="rcode" title="R code">
+u = "http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC"
+doc = htmlParse(u, encoding = "UTF8")
+h = getNodeSet(doc, "//table/tr[1]//font/i/a/@href")  # very specific
+<pre class="routput">
+[[1]]
+                                                                                                    href 
+"/jspplot/jspPlotServlet.jsp?sensor_no=5317&amp;end=06/01/2016+17:55&amp;geom=small&amp;interval=720&amp;cookies=cdec01" 
+attr(,"class")
+[1] "XMLAttributeValue"
+
+[[2]]
+                                                                                                    href 
+"/jspplot/jspPlotServlet.jsp?sensor_no=5316&amp;end=06/01/2016+17:55&amp;geom=small&amp;interval=720&amp;cookies=cdec01" 
+attr(,"class")
+[1] "XMLAttributeValue"
+
+attr(,"class")
+[1] "XMLNodeSet"
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+So now we want to extract the value on the right hand side of the sensor_no.
+There are many ways to do this (e.g. regular expressions), but we'll use some built-in
+functions in the <i xmlns="" xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org"><a href="http://cran.r-project.org/web/packages/XML/index.html">XML</a></i> and <i xmlns="" xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org"><a href="http://cran.r-project.org/web/packages/RCurl/index.html">RCurl</a></i> packages.
+These are <i xmlns="" xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" class="rfunc">parseURI()</i> and <i xmlns="" xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" class="rfunc">getFormParams()</i><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430460784"><div><pre class="rcode" title="R code">
+lapply(h, function(x) parseURI(x)$query)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<i xmlns="" xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" class="rfunc">parseURI()</i> takes a URL and returns a list with 
+the protocol (e.g., http), the name of the host machine, the
+path to the file being requested,  and any query parameters.
+From this, we can extract the query parameters and then break them into name=value pairs and
+return a character vector. <i xmlns="" xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" class="rfunc">getFormParams()</i> does this for us:
+<div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430462224"><div><pre class="rcode" title="R code">
+library(RCurl)
+sapply(h, function(x) getFormParams(parseURI(x)$query)["sensor_no"])
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+We have the sensor identifiers for this station ID.
+</div><div class="section" title="Other Stations"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140301430462832"></a>Other Stations</h2></div></div></div><p>
+We can modify our <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getMonthly()</i> very slightly to make it more flexible and allow the caller to specify a different site/location
+other than MRC, e.g. Bear Basin "BBS".
+</p><pre xmlns="" class="rfunction"><code class="r">
+getMonthly = 
+function(station = "MRC", u = sprintf("http://cdec.water.ca.gov/cgi-progs/queryMonthly?%s", station))
+{
+    tt = readHTMLTable(u, encoding = "UTF8", stringsAsFactors = FALSE)
+    tt = tt[[1]][ -1 , -c(2, 4, 6) ]  
+    tt[ , 2:3] = lapply( tt[, 2:3], as.integer)
+    names(tt) = gsub("&amp;nbsp", "", names(tt))
+    tt$Date = as.Date(sprintf("1/%s", tt$Date), "%d/%m/%Y")
+    tt
+}
+</code></pre>
+<p><br xmlns="">
+</p><p>
+We can call this with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430465904"><div><pre class="rcode" title="R code">
+mrc = getMonthly()
+bear = getMonthly("BBS")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+This second one fails. If we look at the page in the Web browser
+<a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/queryMonthly?BBS" target="_top">http://cdec.water.ca.gov/cgi-progs/queryMonthly?BBS</a>, we see it is actually a  different layout.
+So our function would have to be smarter to recognize the different formats. 
+We can do this with a small amount of extra work to make our function more robust.
+But note that the we are getting back different variables/measurements. So we still have to know
+how to interpret these ourselves.
+However, note that this is simpler as the column header information is in a single row,
+and the date information is slightly more conveniently formatted in the second column.
+Let's see how <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> does on this:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430467728"><div><pre class="rcode" title="R code">
+tt = readHTMLTable("http://cdec.water.ca.gov/cgi-progs/queryMonthly?BBS", which = 2, encoding = "UTF8", 
+                    stringsAsFactors = FALSE,
+                    colClasses = list("character", "character", "numeric", NULL, "numeric", NULL, "Percent"))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Note  that we are telling <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> to read only the second table. The first one - we guess - is
+the grey one with the metadata about the station.
+</p><p>
+So we have to generalize our function to be able to handle tables of different shapes and formats
+returned by the same query URL but for different sites.
+</p><p>
+How do we find the station identifiers so that we can explore their formats?
+</p><div class="section" title="Getting the Station Identifiers"><div class="titlepage"><div><div><h3 class="title"><a id="idp140301430470128"></a>Getting the Station Identifiers</h3></div></div></div><p>
+How do we know the station identifiers?
+It would be convenient if there was a page with all of them listed.
+However, there is a page where we can enter one or more of the three letters and get a list of the corresponding
+stations whose IDs start with that prefix.
+The URL for this is <a class="ulink" href="http://cdec.water.ca.gov/staMeta.html" target="_top">http://cdec.water.ca.gov/staMeta.html</a>. It is a form and we can submit 
+the letter A, for example, and that brings us to the page
+<a class="ulink" href="http://cdec.water.ca.gov/cgi-progs/staMeta?station_id=A" target="_top">http://cdec.water.ca.gov/cgi-progs/staMeta?station_id=A</a>.
+We see text such as
+</p><pre class="programlisting">
+ABJ A&amp;B CANAL NR JOHNSTONVILLE (SUSAN R)
+AGW A.G. WISHON (PG&amp;E) (SAN JOAQUIN R)
+ABY ABBEY (FEATHER R)
+ACN ACTON (SANTA CLARA R)
+ACT ACTON ESCONDIDO CNYN (MOJAVE DESERT)
+ADI ADIN MOUNTAIN (PIT R)
+ADM ADIN MOUNTAIN (PIT R)
+</pre><p>
+The three letter IDs on the left of each line are hyperlinks to information about that station.
+This is not a table, but a verbatim/PREformatted block of text in HTML.
+The HTML looks like
+</p><pre xmlns:xd="http://www.xsldoc.org" xmlns="" class="programlisting_html">
+&lt;p&gt;Try one of these:
+&lt;pre&gt;
+&lt;a href="/cgi-progs/staMeta?station_id=ABJ"&gt;ABJ&lt;/a&gt; A&amp;B CANAL NR JOHNSTONVILLE (SUSAN R)
+&lt;a href="/cgi-progs/staMeta?station_id=AGW"&gt;AGW&lt;/a&gt; A.G. WISHON (PG&amp;E) (SAN JOAQUIN R)
+&lt;a href="/cgi-progs/staMeta?station_id=ABY"&gt;ABY&lt;/a&gt; ABBEY (FEATHER R)
+</pre>
+<p>
+To read these, we need to find the <code xmlns="" class="xmlTag">&lt;PRE&gt;</code> elements and then
+each of the <code xmlns="" class="xmlTag">&lt;A&gt;</code> elements within it.
+For each of these, we can extract the contents of that element, i.e. the three letter ID.
+Also, we can get the human-readable name as the text following that <code xmlns="" class="xmlTag">&lt;A&gt;</code>.
+We can do this with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430475888"><div><pre class="rcode" title="R code">
+doc = htmlParse(txt, encoding = "UTF8")
+a = getNodeSet(doc, "//pre/a")
+stations = XML:::trim(sapply(a, function(x) xmlValue(getSibling(x))))
+names(stations) = sapply(a, xmlValue)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+or 
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430476464"><div><pre class="rcode" title="R code">
+structure(XML:::trim(sapply(a, function(x) xmlValue(getSibling(x)))),  
+          names = sapply(a, xmlValue))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getNodeSet()</i> is our workhorse here.
+We find all nodes in the HTML hierarchical tree that have the name <code xmlns="" class="xmlTag">&lt;PRE&gt;</code> (case is not important).
+The // means start at the top and look through all the descendants of the hierarchy.
+Having found a <code xmlns="" class="xmlTag">&lt;PRE&gt;</code> element, we next the next step in the XPath walk which is to look
+for an <code xmlns="" class="xmlTag">&lt;A&gt;</code> element which is a direct child of the <code xmlns="" class="xmlTag">&lt;PRE&gt;</code> element.
+The / means look only at the direct children.
+This returns a list of all matching <code xmlns="" class="xmlTag">&lt;A&gt;</code> elements and so we have all the ones we want.
+</p><p>
+With these <code xmlns="" class="xmlTag">&lt;A&gt;</code> elements in had, we loop over them to get the text inside the <code xmlns="" class="xmlTag">&lt;A&gt;</code>
+with 
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430481120"><div><pre class="rcode" title="R code">
+sapply(a, xmlValue)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+And to get the human-readable description, we loop over the <code xmlns="" class="xmlTag">&lt;A&gt;</code> elements and
+get the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">xmlValue()</i> of the node immediately following each:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430482336"><div><pre class="rcode" title="R code">
+sapply(a, function(x) 
+            xmlValue(getSibling(x)))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+Where did the variable <b xmlns="" class="S" title="">txt</b> come from in the call to <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">htmlParse()()</i>?
+We used the function <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getForm()</i> in the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/RCurl/index.html">RCurl</a></i> package to submit the request
+for this letter:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430484768"><div><pre class="rcode" title="R code">
+txt = getForm("http://cdec.water.ca.gov/cgi-progs/staMeta", station_id = "A")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p></div><p>
+We could generalize our <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">getMonthly()</i> functions to handle the different tables returned from
+that URL alone for the different stations.
+However, we might be able to handle all tables from this Web site with a general function.
+In other words, we may be able to handle tables from the other two URLs we queried, and perhaps the NOAA site also.
+</p><p>
+As we look at the different pages, we see the tables of interest have different characteristics.
+</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>One or two rows for the column headers</p></li><li class="listitem"><p>commas in the numbers for more human-readable formatting</p></li><li class="listitem"><p>dates as month/year and day-month-year</p></li><li class="listitem"><p>date and times as a column</p></li><li class="listitem"><p>missing values are either -- or -----</p></li></ol></div><p>
+Can we write a function that can adapt to all of these?
+</p><p>
+After several iterations, testing on different Web pages/queries, here is such a function.
+It is now in an <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> package named <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/DWR/index.html">DWR</a></i> and it is on github at
+<a class="ulink" href="https://github.com/duncantl/DWR" target="_top">https://github.com/duncantl/DWR</a>.
+</p><pre xmlns="" class="rfunction"><code class="r">
+getMonthly =
+function(station = "MRC", 
+         u = sprintf("http://cdec.water.ca.gov/cgi-progs/queryMonthly?%s", station),
+         doc = htmlParse(u, encoding = "UTF8"), ...)
+{
+    tt = readHTMLTable(doc, stringsAsFactors = FALSE, ...)
+    if(length(tt) == 0)  # there were no tables in the page.
+       return(list())
+
+    tt = tt[[1]]  # assume it is the first one! But user can specify which =  via the ...
+       # Discard the columns with no name
+    tt = tt[ names(tt) != "" ]
+
+       # clean away the &amp;nbsp
+    names(tt) = gsub("&amp;nbsp", "", names(tt))
+
+       # check to see if the first row is made up entirely of non-numbers
+       # This won't work if the table has no number columns, but that's okay for now.
+    if(all(grepl("^[()A-Za-z ]*$", XML:::trim(tt[1,]))))
+       tt = tt[ -1 , ]
+    
+    convertCols(tt)
+}
+</code></pre>
+<p><br xmlns="">
+The user can specify the station identifier and we send the corresponding request
+to the queryMonthly URL.
+However, since <i xmlns="" class="rarg">u</i> is a parameter, the caller can also specify a different URL
+and then the station will be ignored. This is how we can query the other 3 URLs we looked at.
+And finally, if the caller already has the <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="progLang">HTML</b> document, they can pass this via the <i xmlns="" class="rarg">doc</i>
+parameter.
+Making these parameters but not requiring them because the default values are correct  for the basic case
+(the caller specifies the station) gives us convenience and flexibility.
+</p><p>
+We have to implement <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">convertCols()</i>.
+This is 
+</p><pre xmlns="" class="rfunction"><code class="r">
+convertCols =
+function(df)
+{
+  df[ ] = lapply(df, convertCol)
+  df
+}
+</code></pre>
+<p><br xmlns="">
+This converts each column in the data frame and then inserts them back into the data frame and returns that updated version.
+</p><p>
+The <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">convertCol()</i> function has to handle the different formats of a column, and
+also identify missing value markers. 
+We use pattern matching to find the missing values and also identify each type of column - 
+integer, real-valued numbers, comma-formatted numbers, dates in different formats.
+This uses regular expressions to identify the correct pattern and then converts the values in the columns
+appropriately.
+</p><pre xmlns="" class="rfunction"><code class="r">
+convertCol =
+function(col)
+{
+  miss = grepl("-{2,}", col)
+  if(all(miss))
+     return(as.integer(rep(NA, length(col))))
+  col[miss] = NA
+
+      # all the entries are missing or digits (or negative sign)
+  if(all(is.na(col) | grepl("^[-0-9,]+$", col)))
+     return(as(col, "FormattedInteger"))  
+
+      # digits but . allowed also
+  if(all(is.na(col) | grepl("^[-0-9,.]+$", col)))
+     return(as(col, "FormattedNumber"))
+
+   # Dates and times  
+   #  month and year
+  if(all(is.na(col) | grepl("^[0-9]{2}/[0-9]{4}$", col)))
+     return(as.Date(sprintf("1/%s", col), "%d/%m/%Y"))
+
+    # 07-JAN-2015
+  if(all(is.na(col) | grepl("^[0-9]{2}-[A-Z]+-[0-9]{4}$", col)))
+     return(as.Date(col, "%d-%b-%Y"))
+
+    # date and time
+  if(all(is.na(col) | grepl("^[0-9]{2}/[0-9]{2}/[0-9]{4} [0-9]{2}:[0-9]{2}$", col)))  
+     return(as.POSIXct(strptime(col, "%m/%d/%Y %H:%M")))
+
+  col
+}
+</code></pre>
+<p><br xmlns="">
+</p><p>
+We can test this function. Firstly, let's install and load the package:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430497968"><div><pre class="rcode" title="R code">
+install.packages("devtools")
+library(devtools)
+install_github("duncant/DWR")
+library(DWR)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Let's check we can still read the MRC data
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430498448"><div><pre class="rcode" title="R code">
+mrc = getMonthly(u = "http://cdec.water.ca.gov/cgi-progs/queryMonthly?MRC")
+head(mrc)
+<pre class="routput">
+        Date MON FLO MON FNF
+2 2014-07-01   64830    9975
+3 2014-08-01   52840    5107
+4 2014-09-01   34640    1723
+5 2014-10-01   28780       0
+6 2014-11-01   15112    3011
+7 2014-12-01   15225   12645
+</pre>
+sapply(mrc, class)
+<pre class="routput">
+     Date   MON FLO   MON FNF 
+   "Date" "integer" "integer" 
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+What about the BBS site that we failed on previousy?
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430500416"><div><pre class="rcode" title="R code">
+getMonthly(u = "http://cdec.water.ca.gov/cgi-progs/queryMonthly?BBS", which = 2)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Note that we had to specify that we wanted the second table, not the metadata about the site.
+</p><p>
+Let's move to a different URL, e.g., the storage data for Shasta:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430501456"><div><pre class="rcode" title="R code">
+getMonthly(u = "http://cdec.water.ca.gov/cgi-progs/queryF?SHA")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+The same query for BBS gives an empty list as there is no sensor there:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430502000"><div><pre class="rcode" title="R code">
+getMonthly(u = "http://cdec.water.ca.gov/cgi-progs/queryF?BBS")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We can get the monthly flow summaries with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430502464"><div><pre class="rcode" title="R code">
+o = getMonthly(u = "http://cdec.water.ca.gov/cgi-progs/stages/FNFSUM", colClasses = c("character", rep("FormattedInteger", 14)))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Because the <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">convertCol()</i> function can determine the nature of each column, we can get the same result
+by omitting the <i xmlns="" class="rarg">colClasses</i>:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140301430503856"><div><pre class="rcode" title="R code">
+o = getMonthly(u = "http://cdec.water.ca.gov/cgi-progs/stages/FNFSUM")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+Unfortunately, in this case, we have not captured the names of the columns.
+These are in the second row of the table and the first row of the data frame
+<i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">readHTMLTable()</i> returns. And we discard this row as they are all text.
+We need to add code to detect this situation.
+</p></div></div></body></html>

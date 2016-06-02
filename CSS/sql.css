@@ -1,0 +1,19 @@
+pre.SQL {
+  color: brown;
+}
+
+pre.sqlOutput {
+  color: black;
+  border: solid 1pt black;
+}
+
+pre.sqlTable {
+  font-weight: bold;
+}
+
+pre.sqlField {
+  font-weight: italics;
+}
+
+pre.sqlExpr {
+}

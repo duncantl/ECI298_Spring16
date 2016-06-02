@@ -1,0 +1,16 @@
+FONT.htmlTag { color: red ; font-style: italic }
+
+FONT.htmlAttribute { font-weight: bold }
+
+
+b.acronym {
+  font-style: italic;
+}
+
+
+div.warning {
+  border:  2px solid red;
+  padding: 10pt;
+  margin: 20pt;
+  margin-right: 50pt;
+}

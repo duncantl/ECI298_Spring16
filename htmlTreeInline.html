@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTML Tree Demo</title>
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="../d3/d3.layout.js"></script>
+
+<style>
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2.5px;
+}
+
+.node {
+  fill: #f00;
+  background-color: #f00;
+  stroke: #ccc;
+  stroke-width: 20.5px;
+  r: 30;
+}
+
+circle {
+  fill: #f00;
+  r: 10;
+}
+
+.HTMLNode {
+  background-color: red;
+  color: red;
+  fill: red;
+}
+
+.textNode {
+  fill: green;
+}
+</style>
+</head>
+
+<body>
+ 
+<div id="tree"></div>
+
+<script id="data">
+var treeData =
+{
+ "name": "div",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+},
+{
+ "name": "h1",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "MERCED R NR MERCED FALLS",
+"isLeaf": true 
+},
+{
+ "name": "font",
+"children": [
+ {
+ "name": "em",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "(MRC)",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "color=red",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "Elevation: 311' · MERCED R basin\n · Operator:  US Geological Survey",
+"isLeaf": true 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Provisional data, subject to change.",
+"isLeaf": true 
+},
+{
+ "name": "br",
+"children": [],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "i",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Query executed Wednesday at 16:37:43",
+"isLeaf": true 
+},
+{
+ "name": "img",
+"children": [],
+"attrs": "src=/cgi-progs/clock.gif/14227 alt=clock width=31 height=31 align=top",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Earlier",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/queryMonthly?MRC&d=01-Jun-2014+16:37&span=2years",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "table",
+"children": [
+ {
+ "name": "tr",
+"children": [
+ {
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Date",
+"isLeaf": true 
+} 
+],
+"attrs": "align=left bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "align=left bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "font",
+"children": [
+ {
+ "name": "i",
+"children": [
+ {
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "MON FLO",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/jspplot/jspPlotServlet.jsp?sensor_no=5317&end=06/01/2016+16:37&geom=small&interval=720&cookies=cdec01",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "&nbsp",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "color=black",
+"isLeaf": false 
+} 
+],
+"attrs": "align=right bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "font",
+"children": [
+ {
+ "name": "i",
+"children": [
+ {
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "MON FNF",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/jspplot/jspPlotServlet.jsp?sensor_no=5316&end=06/01/2016+16:37&geom=small&interval=720&cookies=cdec01",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "&nbsp",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "color=black",
+"isLeaf": false 
+} 
+],
+"attrs": "align=right bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "tr",
+"children": [
+ {
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "align=left bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "i",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "AF",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "align=center bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "i",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "AF",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "align=center bgcolor=e0e0e0",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "bgcolor=e0e0e0",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "tr",
+"children": [
+ {
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "07/2014",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "64830",
+"isLeaf": true 
+} 
+],
+"attrs": "align=right",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "r",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/misc/flaglist.html style=text-decoration:none",
+"isLeaf": false 
+} 
+],
+"attrs": "align=right",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "9975",
+"isLeaf": true 
+} 
+],
+"attrs": "align=right",
+"isLeaf": false 
+},
+{
+ "name": "td",
+"children": [
+ {
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/misc/flaglist.html style=text-decoration:none",
+"isLeaf": false 
+} 
+],
+"attrs": "align=right",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "width=260 border=0 cellspacing=0 cellpadding=0",
+"isLeaf": false 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Later",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/queryMonthly?MRC&d=01-Jun-2018+16:37&span=2years",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "|",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Latest",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/queryMonthly?MRC&d=01-Jun-2016+16:37&span=2years",
+"isLeaf": false 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Warning! This data is preliminary and subject to revision.",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+},
+{
+ "name": "p",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Show MRC Map",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cdecstation/",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "|",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Daily MRC Data",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/queryDaily?s=MRC&d=01-Jun-2016+16:37",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "|",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Real-Time MRC Data",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/queryF?MRC&d=01-Jun-2016+16:37",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "|",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "MRC Info",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/stationInfo?station_id=MRC",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "|",
+"isLeaf": true 
+},
+{
+ "name": "a",
+"children": [
+ {
+ "name": "text",
+"children": [],
+"attrs": "Snow Courses",
+"isLeaf": true 
+} 
+],
+"attrs": "href=/cgi-progs/snowQuery",
+"isLeaf": false 
+},
+{
+ "name": "text",
+"children": [],
+"attrs": "",
+"isLeaf": true 
+} 
+],
+"attrs": "",
+"isLeaf": false 
+} 
+],
+"attrs": "class=content_left_column",
+"isLeaf": false 
+}
+;</script>
+
+<script id="js" type="text/javascript">      // Create a svg canvas
+      var vis = d3.select("#tree").append("svg:svg")
+      .attr("width", 2000)
+      .attr("height", 800)
+      .append("svg:g")
+      .attr("transform", "translate(40, 20)"); // shift everything to the right
+ 
+      // Create a tree "canvas"
+      var tree = d3.layout.tree().size([2000,600]);
+ 
+      var diagonal = d3.svg.diagonal()
+      // change x and y (for the left to right tree)
+//      .projection(function(d) { return [d.y, d.x]; });
+ 
+//    d3.json("htmlTreeData.json", function(error, treeData) {
+      // Preparing the data for the tree layout, convert data into an array of nodes
+      var nodes = tree.nodes(treeData);
+      // Create an array with all the links
+      var links = tree.links(nodes);
+ 
+      var link = vis.selectAll("pathlink")
+      .data(links)
+      .enter().append("svg:path")
+      .attr("class", "link")
+      .attr("d", diagonal)
+ 
+      var node = vis.selectAll("g.node")
+      .data(nodes)
+      .enter().append("svg:g")
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      ;
+
+      // Add the dot at every node
+/*
+      node.append("svg:circle")
+      .attr("r", 3.5)
+      .attr("svg:title", function(d) { return(d.name); })
+      .append("title")
+      .text(function(d, i) { return(d.name); });
+*/
+
+      node.append("text")
+      .attr("text-anchor", "middle")
+      .attr("class", function(d) { return (d.isLeaf ? "textNode" : "HTMLNode"); })
+      .text(function(d, i) { return( d.isLeaf ?  "TEXT" : "<" + d.name + ">"); })
+      .attr("svg:title", function(d) { return(d.name); })
+      .append("title")
+      .text(function(d, i) { return(d.attrs != "" ? d.attrs : "blank"); });
+//})
+ </script>
+</body>
+</html>
