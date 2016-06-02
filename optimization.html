@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Numerical Optimization</title><link rel="stylesheet" type="text/css" href="No"></link><link rel="stylesheet" type="text/css" href="entry"></link><link rel="stylesheet" type="text/css" href="for"></link><link rel="stylesheet" type="text/css" href="URI"></link><link rel="stylesheet" type="text/css" href="CSS/OmegaTech.css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></meta></head><body class="yui-skin-sam"><div class="article" title="Numerical Optimization"><div class="titlepage"><div><div><h2 class="title"><a id="idp140702908271776"></a>Numerical Optimization</h2></div><div><div class="author"><h3 class="author"><span class="firstname">Duncan</span> <span class="surname">Temple Lang</span></h3><div class="affiliation">Director, Data Science Initiative &amp; Prof. Dept. of Statistics</div></div></div></div><hr></hr></div><p>
+<title>Numerical Optimization</title><link rel="stylesheet" type="text/css" href="No"></link><link rel="stylesheet" type="text/css" href="entry"></link><link rel="stylesheet" type="text/css" href="for"></link><link rel="stylesheet" type="text/css" href="URI"></link><link rel="stylesheet" type="text/css" href="CSS/OmegaTech.css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></meta></head><body class="yui-skin-sam"><div class="article" title="Numerical Optimization"><div class="titlepage"><div><div><h2 class="title"><a id="idp140297879916544"></a>Numerical Optimization</h2></div><div><div class="author"><h3 class="author"><span class="firstname">Duncan</span> <span class="surname">Temple Lang</span></h3><div class="affiliation">Director, Data Science Initiative &amp; Prof. Dept. of Statistics</div></div></div></div><hr></hr></div><p>
 Generally, <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> has  support for many different forms of optimizing mathematical functions.
 This is not to be confused with optimizing code.
 In statistics, most methods involve 
@@ -23,10 +23,10 @@ then you are likely to do much better than a general approach.
 </p><p>
 To learn about the algorithms, in addition to the Task View, there is a special issue of the Journal of Statistical Software:
 <a class="ulink" href="https://www.jstatsoft.org/article/view/v060i01/v60i01.pdf" target="_top">Numerical Optimization in R: Beyond
-optim"</a>.
+optim</a>.
 The package <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/optimx/index.html">optimx</a></i> offers a more organized/less disparate entry point to the collection of functions.
 
-</p><div class="section" title="Closures &amp; Scope"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140702908280800"></a>Closures &amp; Scope</h2></div></div></div><p>
+</p><div class="section" title="Closures &amp; Scope"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140297911436768"></a>Closures &amp; Scope</h2></div></div></div><p>
 One interesting and useful thing that often arises in optimization
 is where the function being optimized finds its data.
 The standard idea is that we have a function of some parameters, say p.
@@ -34,7 +34,7 @@ The optimizer searches the parameter space, trying different values of p until i
 it has found an optimum value for the function at the current value of p.
 In statistics, this is all dependent on a given data set.  For example, if we have a sample 
 from a nice and simple Normal distribution with mean &#956;,
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908281696"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911437664"><div><pre class="rcode" title="R code">
 x = rnorm(100, 4.3)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
@@ -42,7 +42,7 @@ x = rnorm(100, 4.3)
  we use maximum likelihood 
 to estimate the unknown value &#956; using the data.
 We can write the log of the likelihood function as 
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908282080"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911438448"><div><pre class="rcode" title="R code">
  -n/2 *log(2 * pi) - n/2*log(sigma^2) - (1/2*sigma^2) * sum( (x - mu)^2 )
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
@@ -86,7 +86,7 @@ function(sampleValues)
 This function returns a function that we then want to minimize.
 We can create the negative log likelihood function  for our sample <b xmlns="" class="S" title="">x</b>
 with
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908288784"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911445232"><div><pre class="rcode" title="R code">
 fun = genNegLikFunc(x)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
@@ -96,21 +96,21 @@ And <code xmlns="" class="Sexpression">fun(4)</code> (closer to the maximum like
 log likelihood for minimization so the smaller value is better!)
 </p><p>
 Now, suppose we have to samples:
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908290480"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911446976"><div><pre class="rcode" title="R code">
 x1 = rnorm(100, -2)
 x2 = rnorm(100, 45.9)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
 <p>
 We can create two negative likelihood functions with 
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908290864"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911447472"><div><pre class="rcode" title="R code">
 fun1 = genNegLikFunc(x1)
 fun2 = genNegLikFunc(x2)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
 <p>
 Let's evaluate each of them at &#956; = 0.
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908291248"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911448064"><div><pre class="rcode" title="R code">
 fun1(0)
 <pre class="routput">
 [1] 313.8726
@@ -126,7 +126,7 @@ So they do behave differently as they refer to different samples.
 
 </p><p>
 Now let's optimize this function.
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908292784"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911449680"><div><pre class="rcode" title="R code">
 optimize(fun1, c(-10, 10))
 <pre class="routput">
 $minimum
@@ -139,7 +139,7 @@ $objective
 <div xmlns="" class="clearFloat"></div>
 <p>
 Compare the result to the mean of the sample:
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908293552"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911450560"><div><pre class="rcode" title="R code">
 mean(x1)
 [1] -2.241545
 </pre></div></div></div>
@@ -147,7 +147,7 @@ mean(x1)
 <p>
 </p><p>
 Similarly, for <b xmlns="" class="S" title="">fun2</b>, we have
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908294704"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911451712"><div><pre class="rcode" title="R code">
 optimize(fun2, c(-100, 100))
 <pre class="routput">
 $minimum
@@ -161,7 +161,7 @@ $objective
 <p>
 </p><p>
 Ordinarily, we would use <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">optim()</i>,i.e.,
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908296240"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911453312"><div><pre class="rcode" title="R code">
 optim(0, fun2)
 <pre class="routput">
 $par
@@ -195,21 +195,21 @@ In optim(0, fun2) :
 This tells us that the method may not be suitable.
 This is why we used <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">optimize()</i>.
 Alternatively, we could use Brent's method and then we need to specify the interval to search
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908298736"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911455856"><div><pre class="rcode" title="R code">
 optim(0, fun2, method = "Brent", lower = -100, upper = 100)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
 <p>
 </p><p>
 We can remove the samples from our work space
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908299568"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911456736"><div><pre class="rcode" title="R code">
 rm(x1, x2)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
 <p>
 The functions <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">fun1()</i> and <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns="" class="rfunc">fun2()</i> will still work.
 Each has a copy of the corresponding data.
-</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140702908300784"><div><pre class="rcode" title="R code">
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140297911457952"><div><pre class="rcode" title="R code">
 fun1(-2)
 </pre></div></div></div>
 <div xmlns="" class="clearFloat"></div>
